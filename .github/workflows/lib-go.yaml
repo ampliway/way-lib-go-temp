@@ -1,6 +1,11 @@
 name: lib-go
 
-on: [push]
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
   general:
@@ -16,10 +21,16 @@ jobs:
       - name: Test
         run: go test -v ./...
 
-      - uses: actions/checkout@master
       - name: Bump version and push tag
-        uses: hennejg/github-tag-action@v4.3.1
+        uses: mathieudutour/github-tag-action@v6.1
         with:
-          github_token: ${{ secrets.WAY_GITHUB_SECRET }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: main
           create_annotated_tag: true
+
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
