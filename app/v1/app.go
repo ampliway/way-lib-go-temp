@@ -29,6 +29,6 @@ func New[T any]() (*App[T], error) {
 	}, nil
 }
 
-func (a *App[T]) Config() config.V1[T] {
-	return a.config
+func (a *App[T]) Config() *T {
+	return a.config.Get()
 }

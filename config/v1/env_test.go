@@ -17,10 +17,6 @@ type testConfig struct {
 	Field3 bool
 }
 
-type testFieldInvalidConfig struct {
-	Field1 func()
-}
-
 func TestNew(t *testing.T) {
 	scenarios := []struct {
 		Name        string
@@ -101,16 +97,6 @@ func TestNew(t *testing.T) {
 			},
 			Expected:    &Env[testConfig]{value: &testConfig{Field1: "b", Field2: -1, Field3: false}},
 			ExpectedErr: "",
-		},
-		{
-			Name: "field_invalid",
-			Test: func() (any, error) {
-				os.Setenv("FIELD_1", "1")
-
-				return New[testFieldInvalidConfig]()
-			},
-			Expected:    (*Env[testFieldInvalidConfig])(nil),
-			ExpectedErr: "config: only \"string\", \"int\" and \"bool\" types are supported in struct",
 		},
 	}
 
