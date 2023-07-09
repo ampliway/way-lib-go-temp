@@ -11,24 +11,29 @@ jobs:
   general:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - id: checkout
+        uses: actions/checkout@v3
 
-      - name: Set up Go
+      - id: setup_go
+        name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.20'
 
-      - name: Test
+      - id: test
+        name: Test
         run: go test -v ./...
 
-      - name: Bump version and push tag
+      - id: tag_version
+        name: Bump version and push tag
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: main
           create_annotated_tag: true
 
-      - name: Create a GitHub release
+      - id: release
+        name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.tag_version.outputs.new_tag }}
