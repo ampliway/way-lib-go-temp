@@ -22,4 +22,9 @@ func TestNew(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, app, &App[appConfig]{config: env})
+
+	config := app.Config().Get()
+	assert.Equal(t, &appConfig{
+		FieldA: "value a",
+	}, config)
 }
