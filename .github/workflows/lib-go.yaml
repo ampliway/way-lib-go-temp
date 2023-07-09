@@ -1,0 +1,30 @@
+name: lib-go
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.WORKFLOW_SECRET }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Install dependencies
+        run: go get .
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: Run GitHub Actions Version Updater
+        uses: saadmk11/github-actions-version-updater@v0.7.4
+        with:
+          token: ${{ secrets.WORKFLOW_SECRET }}
+          update_version_with: 'release-tag'
+          release_types: "minor, patch"
