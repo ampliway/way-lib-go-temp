@@ -6,7 +6,7 @@ const MODULE_NAME = "cmd"
 
 type V1[T any] interface {
 	Add(config *Config[T]) error
-	Run(app app.V1[T], arguments ...string)
+	Run(arguments ...string)
 }
 
 type Config[T any] struct {

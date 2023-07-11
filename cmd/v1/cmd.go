@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/ampliway/way-lib-go/app"
+	appV1 "github.com/ampliway/way-lib-go/app/v1"
 	"github.com/ampliway/way-lib-go/cmd"
 )
 
@@ -51,7 +52,12 @@ func (c *Cmd[T]) Add(config *cmd.Config[T]) error {
 	return nil
 }
 
-func (c *Cmd[T]) Run(app app.V1[T], arguments ...string) {
+func (c *Cmd[T]) Run(arguments ...string) {
+	appModule, err := appV1.New[T]()
+	if err != nil {
+		panic(fmt.Errorf("%s: %w", cmd.MODULE_NAME, err))
+	}
+
 	customArguments := strings.Join(arguments, " ")
 	if customArguments == "" {
 		customArguments = strings.Join(os.Args[1:], " ")
@@ -68,7 +74,7 @@ func (c *Cmd[T]) Run(app app.V1[T], arguments ...string) {
 		panic(fmt.Errorf("%s: %w: %v", cmd.MODULE_NAME, errUnknown, args))
 	}
 
-	err := match.Execute(app)
+	err = match.Execute(appModule)
 	if err != nil {
 		panic(fmt.Errorf("%s: %w: %+v", cmd.MODULE_NAME, errExecutionFailed, match))
 	}
