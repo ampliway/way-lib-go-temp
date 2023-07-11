@@ -36,6 +36,8 @@ func New[T any]() (*Env[T], error) {
 		args = map[string]string{}
 
 		flag.VisitAll(func(f *flag.Flag) {
+			fmt.Println(f.Name)
+
 			args[f.Name] = f.Value.String()
 		})
 	})
