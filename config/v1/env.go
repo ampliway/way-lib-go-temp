@@ -2,6 +2,7 @@ package v1
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"reflect"
@@ -33,15 +34,48 @@ func New[T any]() (*Env[T], error) {
 	t := reflect.TypeOf(value)
 	v := reflect.ValueOf(&value).Elem()
 
+	overideValues := map[string]*string{}
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
-		field := v.FieldByName(f.Name)
 		envName := strcase.ToScreamingSnake(f.Name)
-		envValue, envExist := os.LookupEnv(envName)
+
+		if flag.Lookup(envName) == nil {
+			overideValues[envName] = flag.String(envName, "", "")
+		}
+	}
+
+	flag.Parse()
+
+	valuesToDelete := []string{}
+	for key := range overideValues {
+		if !isFlagPassed(key) {
+			valuesToDelete = append(valuesToDelete, key)
+		}
+	}
+
+	for _, value := range valuesToDelete {
+		delete(overideValues, value)
+	}
+
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		envName := strcase.ToScreamingSnake(f.Name)
+
+		var envValue string
+		var envExist bool
+
+		overrideValue, envExist := overideValues[envName]
+		if envExist {
+			envValue = *overrideValue
+		} else {
+			envValue, envExist = os.LookupEnv(envName)
+		}
 
 		if !envExist {
 			return nil, fmt.Errorf("%s: %w: %s", config.MODULE_NAME, errEnvNotFound, envName)
 		}
+
+		field := v.FieldByName(f.Name)
 
 		switch f.Type.String() {
 		case "string":
@@ -70,4 +104,14 @@ func New[T any]() (*Env[T], error) {
 
 func (e *Env[T]) Get() *T {
 	return e.value
+}
+
+func isFlagPassed(name string) bool {
+	found := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == name {
+			found = true
+		}
+	})
+	return found
 }
