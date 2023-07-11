@@ -94,8 +94,6 @@ func configIsValid[T any](config *cmd.Config[T]) error {
 		return fmt.Errorf("%s: %w", cmd.MODULE_NAME, errConfigNameLen)
 	}
 
-	config.Args = replaceSpaceSplit(config.Name)
-
 	config.Description = strings.TrimSpace(config.Description)
 	if config.Description == "" {
 		return fmt.Errorf("%s: %w", cmd.MODULE_NAME, errConfigDescriptionEmpty)
@@ -129,24 +127,14 @@ func replaceSpaceSplit(input string) []string {
 }
 
 func (c *Cmd[T]) findConfig(args ...string) *cmd.Config[T] {
+	if len(args) == 0 {
+		return nil
+	}
+
 	var match *cmd.Config[T]
 
 	for _, config := range c.configs {
-		if len(args) != len(config.Args) {
-			continue
-		}
-
-		isEqual := true
-
-		for i := 0; i < len(args); i++ {
-			if config.Args[i] != args[i] {
-				isEqual = false
-
-				break
-			}
-		}
-
-		if isEqual {
+		if config.Name == args[0] {
 			match = config
 
 			break
@@ -167,6 +155,5 @@ func (c *Cmd[T]) addReservedCommands() {
 
 			return nil
 		},
-		Args: []string{},
 	})
 }

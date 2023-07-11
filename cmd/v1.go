@@ -13,5 +13,4 @@ type Config[T any] struct {
 	Name        string
 	Description string
 	Execute     func(app app.V1[T]) error
-	Args        []string
 }
