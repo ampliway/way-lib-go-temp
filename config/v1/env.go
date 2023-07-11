@@ -7,6 +7,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"sync"
 
 	"github.com/ampliway/way-lib-go/config"
 	"github.com/iancoleman/strcase"
@@ -25,7 +26,20 @@ type Env[T any] struct {
 	value *T
 }
 
+var (
+	once sync.Once
+	args map[string]string
+)
+
 func New[T any]() (*Env[T], error) {
+	once.Do(func() {
+		args = map[string]string{}
+
+		flag.VisitAll(func(f *flag.Flag) {
+			args[f.Name] = f.Value.String()
+		})
+	})
+
 	value := *new(T)
 	if reflect.ValueOf(value).Kind() != reflect.Struct {
 		return nil, fmt.Errorf("%s: %w", config.MODULE_NAME, errGenericNotSupported)
@@ -34,40 +48,22 @@ func New[T any]() (*Env[T], error) {
 	t := reflect.TypeOf(value)
 	v := reflect.ValueOf(&value).Elem()
 
-	overideValues := map[string]*string{}
+	overideValues := map[string]string{}
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		envName := strcase.ToScreamingSnake(f.Name)
 
-		if flag.Lookup(envName) == nil {
-			overideValues[envName] = flag.String(envName, "", "")
+		if value, exist := args[envName]; exist {
+			overideValues[envName] = value
 		}
-	}
-
-	flag.Parse()
-
-	valuesToDelete := []string{}
-	for key := range overideValues {
-		if !isFlagPassed(key) {
-			valuesToDelete = append(valuesToDelete, key)
-		}
-	}
-
-	for _, value := range valuesToDelete {
-		delete(overideValues, value)
 	}
 
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		envName := strcase.ToScreamingSnake(f.Name)
 
-		var envValue string
-		var envExist bool
-
-		overrideValue, envExist := overideValues[envName]
-		if envExist {
-			envValue = *overrideValue
-		} else {
+		envValue, envExist := overideValues[envName]
+		if !envExist {
 			envValue, envExist = os.LookupEnv(envName)
 		}
 
