@@ -2,11 +2,11 @@ package v1
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/ampliway/way-lib-go/config"
@@ -35,11 +35,23 @@ func New[T any]() (*Env[T], error) {
 	once.Do(func() {
 		args = map[string]string{}
 
-		flag.VisitAll(func(f *flag.Flag) {
-			fmt.Println(f.Name)
+		for i, arg := range os.Args {
+			if i == 0 {
+				continue
+			}
 
-			args[f.Name] = f.Value.String()
-		})
+			if !strings.HasPrefix(arg, "-") {
+				continue
+			}
+
+			if !strings.Contains(arg, "=") {
+				continue
+			}
+
+			values := strings.Split(arg, "=")
+
+			args[values[0][1:]] = values[1]
+		}
 	})
 
 	value := *new(T)
@@ -102,14 +114,4 @@ func New[T any]() (*Env[T], error) {
 
 func (e *Env[T]) Get() *T {
 	return e.value
-}
-
-func isFlagPassed(name string) bool {
-	found := false
-	flag.Visit(func(f *flag.Flag) {
-		if f.Name == name {
-			found = true
-		}
-	})
-	return found
 }
