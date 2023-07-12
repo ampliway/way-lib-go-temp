@@ -102,7 +102,6 @@ func (p *Producer) createTopicIfNotExist(topicName string) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w: %s", msg.MODULE_NAME, errAdminClientStart, topicName)
 	}
-	defer admin.Close()
 
 	foundTopic := false
 	topics, err := admin.ListTopics()
