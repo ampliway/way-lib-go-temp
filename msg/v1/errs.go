@@ -10,8 +10,6 @@ var (
 	errKafkaConnect       = errors.New("kafka cannot connect")
 	errProducerStart      = errors.New("start producer failed")
 	errAdminClientStart   = errors.New("start admin client failed")
-	errTopicCreate        = errors.New("create topic failed")
 	errUnmarshal          = errors.New("unmarshal failed")
-	errSubPrefix          = errors.New("invalid prefix message")
 	errPublish            = errors.New("publish message failed")
 )
