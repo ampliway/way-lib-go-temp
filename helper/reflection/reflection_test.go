@@ -65,7 +65,7 @@ func TestAppNamePkg(t *testing.T) {
 		Scenario string
 		Expected string
 	}{
-		{"success_1", "way-lib-go"},
+		{"success_1", "testing"},
 	}
 
 	for _, testData := range rows {

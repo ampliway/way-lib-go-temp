@@ -58,7 +58,7 @@ func AppNamePkg() string {
 			pkgName = pkgNameParts[appNameMax-1]
 		}
 
-		if pkgName != "thunder-lib-go" {
+		if pkgName != "way-lib-go" {
 			break
 		}
 	}
