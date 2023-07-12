@@ -48,7 +48,7 @@ func New[T any]() (*Env[T], error) {
 				continue
 			}
 
-			values := strings.Split(arg, "=")
+			values := strings.SplitN(arg, "=", 2)
 
 			args[values[0][1:]] = values[1]
 		}

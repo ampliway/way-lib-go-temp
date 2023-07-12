@@ -2,7 +2,6 @@ package v1
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/ampliway/way-lib-go/ctx"
@@ -33,8 +32,6 @@ func (n *NatsSubscriber[T]) Publish(ctx ctx.V1, msg interface{}) error {
 func (n *NatsSubscriber[T]) Subscribe(queueGroup string, execution func(m *msg.Message[T]) bool) error {
 	subjectName := subjectName(new(T))
 	packageName := strings.ToLower(reflection.AppNamePkg())
-
-	fmt.Printf("Subscribe stream %s with subject %s\n", packageName, subjectName)
 
 	_, err := n.producer.js.AddConsumer(packageName, &nats.ConsumerConfig{
 		Durable:        queueGroup,
