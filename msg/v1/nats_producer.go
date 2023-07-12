@@ -42,6 +42,8 @@ func New(config *Config, id id.ID) (*NatsProducer, error) {
 
 	packageName := strings.ToLower(reflection.AppNamePkg())
 
+	fmt.Printf("Creating stream %s\n", packageName)
+
 	_, err = js.AddStream(&nats.StreamConfig{
 		Name:     packageName,
 		Subjects: []string{fmt.Sprintf("%s.>", packageName)},
