@@ -43,7 +43,7 @@ func (n *NatsSubscriber[T]) Subscribe(queueGroup string, execution func(m *msg.M
 		return err
 	}
 
-	_, err = n.producer.js.QueueSubscribe(subjectName, queueGroup, func(m *nats.Msg) {
+	_, err = n.producer.js.QueueSubscribe("consumer."+subjectName, queueGroup, func(m *nats.Msg) {
 		var finalValue T
 
 		err := json.Unmarshal(m.Data, &finalValue)
