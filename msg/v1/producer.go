@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"github.com/Shopify/sarama"
-	"github.com/ampliway/way-lib-go/ctx"
 	"github.com/ampliway/way-lib-go/helper/id"
 	"github.com/ampliway/way-lib-go/helper/reflection"
 	"github.com/ampliway/way-lib-go/msg"
@@ -56,7 +55,7 @@ func New(cfg *Config, id id.ID) (*Producer, error) {
 	}, nil
 }
 
-func (p *Producer) Publish(ctx ctx.V1, m interface{}) error {
+func (p *Producer) Publish(m interface{}) error {
 	topicName := topicName(m)
 
 	err := p.createTopicIfNotExist(topicName)
@@ -70,6 +69,7 @@ func (p *Producer) Publish(ctx ctx.V1, m interface{}) error {
 	}
 
 	_, _, err = p.producer.SendMessage(&sarama.ProducerMessage{
+		Key:   sarama.StringEncoder("a"),
 		Topic: topicName,
 		Value: sarama.StringEncoder(value),
 	})

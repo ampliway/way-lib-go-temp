@@ -12,7 +12,6 @@ import (
 	"syscall"
 
 	"github.com/Shopify/sarama"
-	"github.com/ampliway/way-lib-go/ctx"
 	"github.com/ampliway/way-lib-go/helper/id"
 	"github.com/ampliway/way-lib-go/helper/reflection"
 	"github.com/ampliway/way-lib-go/msg"
@@ -34,8 +33,8 @@ func NewSub[T any](cfg *Config, producer *Producer, id id.ID) (*Subscriber[T], e
 	}, nil
 }
 
-func (s *Subscriber[T]) Publish(ctx ctx.V1, msg interface{}) error {
-	return s.producer.Publish(ctx, msg)
+func (s *Subscriber[T]) Publish(msg interface{}) error {
+	return s.producer.Publish(msg)
 }
 
 func (s *Subscriber[T]) Subscribe(queueGroup string, execution func(m *msg.Message[T]) bool) error {

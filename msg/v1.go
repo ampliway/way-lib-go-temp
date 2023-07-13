@@ -1,7 +1,5 @@
 package msg
 
-import "github.com/ampliway/way-lib-go/ctx"
-
 const (
 	MODULE_NAME       = "msg"
 	HEADER_X_MSG_ID   = "x-msg-id"
@@ -16,12 +14,12 @@ type Message[T any] struct {
 }
 
 type ProducerV1 interface {
-	Publish(ctx ctx.V1, m interface{}) error
+	Publish(m interface{}) error
 	Shutdown()
 }
 
 type SubscriberV1[T any] interface {
-	Publish(ctx ctx.V1, m interface{}) error
+	Publish(m interface{}) error
 	Subscribe(queueGroup string, execution func(msg *Message[T]) bool) error
 	Shutdown()
 }
