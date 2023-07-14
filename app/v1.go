@@ -1,10 +1,14 @@
 package app
 
-import "github.com/ampliway/way-lib-go/msg"
+import (
+	"github.com/ampliway/way-lib-go/msg"
+	"github.com/ampliway/way-lib-go/storage"
+)
 
 const MODULE_NAME = "app"
 
 type V1[T any] interface {
 	Config() *T
 	Msg() msg.ProducerV1
+	Storage() storage.V1
 }

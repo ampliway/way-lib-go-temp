@@ -10,6 +10,8 @@ import (
 	"github.com/ampliway/way-lib-go/helper/id"
 	"github.com/ampliway/way-lib-go/msg"
 	msgV1 "github.com/ampliway/way-lib-go/msg/v1"
+	"github.com/ampliway/way-lib-go/storage"
+	storageV1 "github.com/ampliway/way-lib-go/storage/v1"
 )
 
 var (
@@ -18,8 +20,9 @@ var (
 )
 
 type App[T any] struct {
-	config config.V1[T]
-	msg    msg.ProducerV1
+	config  config.V1[T]
+	msg     msg.ProducerV1
+	storage storage.V1
 }
 
 func New[T any]() (*App[T], error) {
@@ -38,9 +41,20 @@ func New[T any]() (*App[T], error) {
 		return nil, fmt.Errorf("%w: %w: %s", errSubModuleInit, err, msg.MODULE_NAME)
 	}
 
+	storageConfig, err := configV1.New[storageV1.Config]()
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w: %s", errSubModuleInit, err, msg.MODULE_NAME)
+	}
+
+	s, err := storageV1.New(storageConfig.Get(), id.New())
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w: %s", errSubModuleInit, err, msg.MODULE_NAME)
+	}
+
 	return &App[T]{
-		config: cfg,
-		msg:    m,
+		config:  cfg,
+		msg:     m,
+		storage: s,
 	}, nil
 }
 
@@ -50,4 +64,8 @@ func (a *App[T]) Config() *T {
 
 func (a *App[T]) Msg() msg.ProducerV1 {
 	return a.msg
+}
+
+func (a *App[T]) Storage() storage.V1 {
+	return a.storage
 }
