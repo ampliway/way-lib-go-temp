@@ -113,8 +113,8 @@ func (e *Env[T]) Get() *T {
 func extractArgs(values []string, ignoreFirst bool) map[string]string {
 	result := map[string]string{}
 
-	for _, arg := range values {
-		if ignoreFirst {
+	for i, arg := range values {
+		if i == 0 && ignoreFirst {
 			continue
 		}
 
