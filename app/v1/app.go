@@ -48,7 +48,7 @@ func New[T any]() (*App[T], error) {
 
 	s, err := storageV1.New(storageConfig.Get(), id.New())
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w: %s", errSubModuleInit, err, msg.MODULE_NAME)
+		return nil, fmt.Errorf("%w: %w: %s", errSubModuleInit, err, storage.MODULE_NAME)
 	}
 
 	return &App[T]{

@@ -3,6 +3,7 @@ package v1
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 	"strconv"
@@ -33,24 +34,17 @@ var (
 
 func New[T any]() (*Env[T], error) {
 	once.Do(func() {
-		args = map[string]string{}
+		args = extractArgs(os.Args)
 
-		for i, arg := range os.Args {
-			if i == 0 {
-				continue
+		file, exist := args["f"]
+		if exist {
+			data, err := os.ReadFile(file)
+			if err != nil {
+				log.Fatal(err)
 			}
 
-			if !strings.HasPrefix(arg, "-") {
-				continue
-			}
-
-			if !strings.Contains(arg, "=") {
-				continue
-			}
-
-			values := strings.SplitN(arg, "=", 2)
-
-			args[values[0][1:]] = values[1]
+			values := strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n")
+			args = extractArgs(values)
 		}
 	})
 
@@ -114,4 +108,29 @@ func New[T any]() (*Env[T], error) {
 
 func (e *Env[T]) Get() *T {
 	return e.value
+}
+
+func extractArgs(values []string) map[string]string {
+	result := map[string]string{}
+
+	for i, arg := range values {
+		if i == 0 {
+			continue
+		}
+
+		removePrefix := 0
+		if strings.HasPrefix(arg, "-") {
+			removePrefix = 1
+		}
+
+		if !strings.Contains(arg, "=") {
+			continue
+		}
+
+		args := strings.SplitN(arg, "=", 2)
+
+		result[args[0][removePrefix:]] = args[1]
+	}
+
+	return result
 }
