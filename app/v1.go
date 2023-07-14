@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/ampliway/way-lib-go/cache"
 	"github.com/ampliway/way-lib-go/msg"
 	"github.com/ampliway/way-lib-go/storage"
 )
@@ -11,4 +12,5 @@ type V1[T any] interface {
 	Config() *T
 	Msg() msg.ProducerV1
 	Storage() storage.V1
+	Cache() cache.V1
 }

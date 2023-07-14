@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/ampliway/way-lib-go/app"
+	"github.com/ampliway/way-lib-go/cache"
+	cacheV1 "github.com/ampliway/way-lib-go/cache/v1"
 	"github.com/ampliway/way-lib-go/config"
 	configV1 "github.com/ampliway/way-lib-go/config/v1"
 	"github.com/ampliway/way-lib-go/helper/id"
@@ -23,6 +25,7 @@ type App[T any] struct {
 	config  config.V1[T]
 	msg     msg.ProducerV1
 	storage storage.V1
+	cache   cache.V1
 }
 
 func New[T any]() (*App[T], error) {
@@ -43,7 +46,7 @@ func New[T any]() (*App[T], error) {
 
 	storageConfig, err := configV1.New[storageV1.Config]()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w: %s", errSubModuleInit, err, msg.MODULE_NAME)
+		return nil, fmt.Errorf("%w: %w: %s", errSubModuleInit, err, storage.MODULE_NAME)
 	}
 
 	s, err := storageV1.New(storageConfig.Get(), id.New())
@@ -51,10 +54,21 @@ func New[T any]() (*App[T], error) {
 		return nil, fmt.Errorf("%w: %w: %s", errSubModuleInit, err, storage.MODULE_NAME)
 	}
 
+	cacheConfig, err := configV1.New[cacheV1.Config]()
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w: %s", errSubModuleInit, err, cache.MODULE_NAME)
+	}
+
+	c, err := cacheV1.New(cacheConfig.Get())
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w: %s", errSubModuleInit, err, cache.MODULE_NAME)
+	}
+
 	return &App[T]{
 		config:  cfg,
 		msg:     m,
 		storage: s,
+		cache:   c,
 	}, nil
 }
 
@@ -68,4 +82,8 @@ func (a *App[T]) Msg() msg.ProducerV1 {
 
 func (a *App[T]) Storage() storage.V1 {
 	return a.storage
+}
+
+func (a *App[T]) Cache() cache.V1 {
+	return a.cache
 }
