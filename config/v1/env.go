@@ -34,7 +34,7 @@ var (
 
 func New[T any]() (*Env[T], error) {
 	once.Do(func() {
-		args = extractArgs(os.Args)
+		args = extractArgs(os.Args, true)
 
 		file, exist := args["f"]
 		if exist {
@@ -44,7 +44,7 @@ func New[T any]() (*Env[T], error) {
 			}
 
 			values := strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n")
-			args = extractArgs(values)
+			args = extractArgs(values, false)
 		}
 	})
 
@@ -110,11 +110,11 @@ func (e *Env[T]) Get() *T {
 	return e.value
 }
 
-func extractArgs(values []string) map[string]string {
+func extractArgs(values []string, ignoreFirst bool) map[string]string {
 	result := map[string]string{}
 
-	for i, arg := range values {
-		if i == 0 {
+	for _, arg := range values {
+		if ignoreFirst {
 			continue
 		}
 
