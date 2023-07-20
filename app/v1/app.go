@@ -26,6 +26,7 @@ type App[T any] struct {
 	msg     msg.ProducerV1
 	storage storage.V1
 	cache   cache.V1
+	id      id.ID
 }
 
 func New[T any]() (*App[T], error) {
@@ -69,6 +70,7 @@ func New[T any]() (*App[T], error) {
 		msg:     m,
 		storage: s,
 		cache:   c,
+		id:      id.New(),
 	}, nil
 }
 
@@ -86,4 +88,8 @@ func (a *App[T]) Storage() storage.V1 {
 
 func (a *App[T]) Cache() cache.V1 {
 	return a.cache
+}
+
+func (a *App[T]) ID() string {
+	return a.id.Random()
 }

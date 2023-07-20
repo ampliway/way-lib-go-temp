@@ -13,4 +13,5 @@ type V1[T any] interface {
 	Msg() msg.ProducerV1
 	Storage() storage.V1
 	Cache() cache.V1
+	ID() string
 }
