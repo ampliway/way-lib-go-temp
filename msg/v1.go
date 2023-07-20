@@ -14,12 +14,12 @@ type Message[T any] struct {
 }
 
 type ProducerV1 interface {
-	Publish(m interface{}) error
+	Publish(key string, m interface{}) error
 	Shutdown()
 }
 
 type SubscriberV1[T any] interface {
-	Publish(m interface{}) error
+	Publish(key string, m interface{}) error
 	Subscribe(queueGroup string, execution func(msg *Message[T]) bool) error
 	Shutdown()
 }

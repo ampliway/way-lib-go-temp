@@ -33,8 +33,8 @@ func NewSub[T any](cfg *Config, producer *Producer, id id.ID) (*Subscriber[T], e
 	}, nil
 }
 
-func (s *Subscriber[T]) Publish(msg interface{}) error {
-	return s.producer.Publish(msg)
+func (s *Subscriber[T]) Publish(key string, msg interface{}) error {
+	return s.producer.Publish(key, msg)
 }
 
 func (s *Subscriber[T]) Subscribe(queueGroup string, execution func(m *msg.Message[T]) bool) error {

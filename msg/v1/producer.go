@@ -55,7 +55,7 @@ func New(cfg *Config, id id.ID) (*Producer, error) {
 	}, nil
 }
 
-func (p *Producer) Publish(m interface{}) error {
+func (p *Producer) Publish(key string, m interface{}) error {
 	topicName := topicName(m)
 
 	err := p.createTopicIfNotExist(topicName)
@@ -69,7 +69,7 @@ func (p *Producer) Publish(m interface{}) error {
 	}
 
 	_, _, err = p.producer.SendMessage(&sarama.ProducerMessage{
-		Key:   sarama.StringEncoder("a"),
+		Key:   sarama.StringEncoder(key),
 		Topic: topicName,
 		Value: sarama.StringEncoder(value),
 	})
