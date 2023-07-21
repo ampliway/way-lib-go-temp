@@ -38,9 +38,14 @@ func (s *Subscriber[T]) Publish(key string, msg interface{}) error {
 }
 
 func (s *Subscriber[T]) Subscribe(queueGroup string, execution func(m *msg.Message[T]) bool) error {
+	topicName := topicName(new(T))
+
+	return s.SubscribeT(topicName, queueGroup, execution)
+}
+
+func (s *Subscriber[T]) SubscribeT(topicName, queueGroup string, execution func(msg *msg.Message[T]) bool) error {
 	keepRunning := true
 	config := defaultConfig()
-	topicName := topicName(new(T))
 
 	err := s.producer.createTopicIfNotExist(topicName)
 	if err != nil {

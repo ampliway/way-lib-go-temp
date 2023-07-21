@@ -21,5 +21,6 @@ type ProducerV1 interface {
 type SubscriberV1[T any] interface {
 	Publish(key string, m interface{}) error
 	Subscribe(queueGroup string, execution func(msg *Message[T]) bool) error
+	SubscribeT(topicName, queueGroup string, execution func(msg *Message[T]) bool) error
 	Shutdown()
 }
