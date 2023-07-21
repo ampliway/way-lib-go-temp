@@ -5,11 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
 	"strings"
 	"sync"
-	"syscall"
 
 	"github.com/Shopify/sarama"
 	"github.com/ampliway/way-lib-go/helper/id"
@@ -23,6 +20,7 @@ type Subscriber[T any] struct {
 	producer *Producer
 	id       id.ID
 	cfg      *Config
+	client   sarama.ConsumerGroup
 }
 
 func NewSub[T any](cfg *Config, producer *Producer, id id.ID) (*Subscriber[T], error) {
@@ -44,7 +42,6 @@ func (s *Subscriber[T]) Subscribe(queueGroup string, execution func(m *msg.Messa
 }
 
 func (s *Subscriber[T]) SubscribeT(topicName, queueGroup string, execution func(msg *msg.Message[T]) bool) error {
-	keepRunning := true
 	config := defaultConfig()
 
 	err := s.producer.createTopicIfNotExist(topicName)
@@ -54,13 +51,12 @@ func (s *Subscriber[T]) SubscribeT(topicName, queueGroup string, execution func(
 
 	queueGroup = fmt.Sprintf("%s.%s", reflection.AppNamePkg(), queueGroup)
 
-	ctx, cancel := context.WithCancel(context.Background())
 	client, err := sarama.NewConsumerGroup(strings.Split(s.cfg.KafkaServers, ","), queueGroup, config)
 	if err != nil {
-		cancel()
-
 		return err
 	}
+
+	s.client = client
 
 	consumer := Consumer[T]{
 		ready:     make(chan bool),
@@ -71,6 +67,9 @@ func (s *Subscriber[T]) SubscribeT(topicName, queueGroup string, execution func(
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+
+		ctx := context.Background()
+
 		for {
 			// `Consume` should be called inside an infinite loop, when a
 			// server-side rebalance happens, the consumer session will need to be
@@ -88,29 +87,14 @@ func (s *Subscriber[T]) SubscribeT(topicName, queueGroup string, execution func(
 
 	<-consumer.ready
 
-	sigterm := make(chan os.Signal, 1)
-	signal.Notify(sigterm, syscall.SIGINT, syscall.SIGTERM)
-
-	for keepRunning {
-		select {
-		case <-ctx.Done():
-			log.Println("terminating: context cancelled")
-			keepRunning = false
-		case <-sigterm:
-			log.Println("terminating: via signal")
-			keepRunning = false
-		}
-	}
-	cancel()
-	wg.Wait()
-	if err = client.Close(); err != nil {
-		log.Panicf("Error closing client: %v", err)
-	}
-
 	return nil
 }
 
 func (s *Subscriber[T]) Shutdown() {
+	if err := s.client.Close(); err != nil {
+		log.Panicf("Error closing client: %v", err)
+	}
+
 	defer s.producer.Shutdown()
 }
 
