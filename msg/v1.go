@@ -15,11 +15,14 @@ type Message[T any] struct {
 
 type ProducerV1 interface {
 	Publish(key string, m interface{}) error
+	PublishT(topicName, key string, m interface{}) error
+	CreateTopicIfNotExist(topicName string, numPartitions int32, replicationFactor int16) error
 	Shutdown()
 }
 
 type SubscriberV1[T any] interface {
 	Publish(key string, m interface{}) error
+	PublishT(topicName, key string, m interface{}) error
 	Subscribe(queueGroup string, execution func(msg *Message[T]) bool) error
 	SubscribeT(topicName, queueGroup string, execution func(msg *Message[T]) bool) error
 	Shutdown()

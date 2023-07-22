@@ -58,7 +58,11 @@ func New(cfg *Config, id id.ID) (*Producer, error) {
 func (p *Producer) Publish(key string, m interface{}) error {
 	topicName := topicName(m)
 
-	err := p.createTopicIfNotExist(topicName)
+	return p.PublishT(topicName, key, m)
+}
+
+func (p *Producer) PublishT(topicName, key string, m interface{}) error {
+	err := p.CreateTopicIfNotExist(topicName, 3, 3)
 	if err != nil {
 		return err
 	}
@@ -91,7 +95,7 @@ func topicName(msg interface{}) string {
 	return fmt.Sprintf("%s.%s", packageName, msgName)
 }
 
-func (p *Producer) createTopicIfNotExist(topicName string) error {
+func (p *Producer) CreateTopicIfNotExist(topicName string, numPartitions int32, replicationFactor int16) error {
 	p.topicMux.Lock()
 	defer p.topicMux.Unlock()
 	if item, ok := p.topics[topicName]; ok && item {
@@ -121,8 +125,8 @@ func (p *Producer) createTopicIfNotExist(topicName string) error {
 		cleanupPolicy := "compact"
 
 		topicDetail := &sarama.TopicDetail{
-			NumPartitions:     3,
-			ReplicationFactor: 3,
+			NumPartitions:     numPartitions,
+			ReplicationFactor: replicationFactor,
 			ConfigEntries: map[string]*string{
 				"cleanup.policy": &cleanupPolicy,
 			},
