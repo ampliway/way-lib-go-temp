@@ -1,8 +1,12 @@
 package v1
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 	"strings"
 	"sync"
 
@@ -32,7 +36,7 @@ func New(cfg *Config, id id.ID) (*Producer, error) {
 		return nil, fmt.Errorf("%s: %w", msg.MODULE_NAME, errConfigServersEmpty)
 	}
 
-	config := defaultConfig()
+	config := defaultConfig(cfg)
 
 	servers := strings.Split(cfg.KafkaServers, ",")
 
@@ -143,7 +147,7 @@ func (p *Producer) CreateTopicIfNotExist(topicName string, numPartitions int32, 
 	return nil
 }
 
-func defaultConfig() *sarama.Config {
+func defaultConfig(cfg *Config) *sarama.Config {
 	config := sarama.NewConfig()
 	config.Version = sarama.V3_3_1_0
 	config.Consumer.Group.Rebalance.GroupStrategies = []sarama.BalanceStrategy{sarama.BalanceStrategyRoundRobin}
@@ -151,5 +155,49 @@ func defaultConfig() *sarama.Config {
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.Return.Successes = true
 
+	if cfg.KafkaUsername != "" {
+		config.Net.SASL.Enable = true
+		config.Net.SASL.User = cfg.KafkaUsername
+		config.Net.SASL.Password = cfg.KafkaPassword
+		config.Net.SASL.Handshake = true
+		if cfg.KafkaAlgorithm == "sha512" {
+			config.Net.SASL.SCRAMClientGeneratorFunc = func() sarama.SCRAMClient { return &XDGSCRAMClient{HashGeneratorFcn: SHA512} }
+			config.Net.SASL.Mechanism = sarama.SASLTypeSCRAMSHA512
+		} else if cfg.KafkaAlgorithm == "sha256" {
+			config.Net.SASL.SCRAMClientGeneratorFunc = func() sarama.SCRAMClient { return &XDGSCRAMClient{HashGeneratorFcn: SHA256} }
+			config.Net.SASL.Mechanism = sarama.SASLTypeSCRAMSHA256
+		} else {
+			log.Fatalf("invalid SHA algorithm \"%s\": can be either \"sha256\" or \"sha512\"", cfg.KafkaAlgorithm)
+		}
+
+		if cfg.KafkaCAFile != "" {
+			config.Net.TLS.Enable = true
+			config.Net.TLS.Config = createTLSConfiguration(cfg)
+		}
+	}
+
 	return config
+}
+
+func createTLSConfiguration(cfg *Config) (t *tls.Config) {
+	cert, err := tls.LoadX509KeyPair(cfg.KafkaCertFile, cfg.KafkaKeyFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	caCert, err := os.ReadFile(cfg.KafkaCAFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	t = &tls.Config{
+		Certificates:       []tls.Certificate{cert},
+		RootCAs:            caCertPool,
+		InsecureSkipVerify: false,
+	}
+
+	return t
 }

@@ -46,7 +46,7 @@ func (s *Subscriber[T]) Subscribe(queueGroup string, execution func(m *msg.Messa
 }
 
 func (s *Subscriber[T]) SubscribeT(topicName, queueGroup string, execution func(msg *msg.Message[T]) bool) error {
-	config := defaultConfig()
+	config := defaultConfig(s.cfg)
 
 	err := s.producer.CreateTopicIfNotExist(topicName, 3, 3)
 	if err != nil {
