@@ -169,11 +169,11 @@ func defaultConfig(cfg *Config) *sarama.Config {
 		} else {
 			log.Fatalf("invalid SHA algorithm \"%s\": can be either \"sha256\" or \"sha512\"", cfg.KafkaAlgorithm)
 		}
+	}
 
-		if cfg.KafkaCAFile != "" {
-			config.Net.TLS.Enable = true
-			config.Net.TLS.Config = createTLSConfiguration(cfg)
-		}
+	if cfg.KafkaCAFile != "" {
+		config.Net.TLS.Enable = true
+		config.Net.TLS.Config = createTLSConfiguration(cfg)
 	}
 
 	return config
@@ -196,7 +196,7 @@ func createTLSConfiguration(cfg *Config) (t *tls.Config) {
 	t = &tls.Config{
 		Certificates:       []tls.Certificate{cert},
 		RootCAs:            caCertPool,
-		InsecureSkipVerify: false,
+		InsecureSkipVerify: true,
 	}
 
 	return t
