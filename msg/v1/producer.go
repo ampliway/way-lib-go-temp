@@ -82,7 +82,7 @@ func (p *Producer) PublishT(topicName, key string, m interface{}) error {
 		Value: sarama.StringEncoder(value),
 	})
 	if err != nil {
-		return fmt.Errorf("%s: %w: %s", msg.MODULE_NAME, errPublish, topicName)
+		return fmt.Errorf("%s: %w: %s: %+v", msg.MODULE_NAME, errPublish, topicName, err)
 	}
 
 	return nil
