@@ -87,6 +87,10 @@ func (p *Producer) Subscribe(m interface{}, queueGroup string, exec func(data []
 
 	topicName := topicName(m)
 
+	return p.SubscribeT(m, topicName, queueGroup, exec)
+}
+
+func (p *Producer) SubscribeT(m interface{}, topicName string, queueGroup string, exec func(data []byte) bool) error {
 	subscription, err := p.js.QueueSubscribe(topicName, queueGroup, func(msg *nats.Msg) {
 		var err error
 		if exec(msg.Data) {
