@@ -23,7 +23,7 @@ var (
 
 type App[T any] struct {
 	config  config.V1[T]
-	msg     msg.ProducerV1
+	msg     msg.MsgV1
 	storage storage.V1
 	cache   cache.V1
 	id      id.ID
@@ -78,7 +78,7 @@ func (a *App[T]) Config() *T {
 	return a.config.Get()
 }
 
-func (a *App[T]) Msg() msg.ProducerV1 {
+func (a *App[T]) Msg() msg.MsgV1 {
 	return a.msg
 }
 

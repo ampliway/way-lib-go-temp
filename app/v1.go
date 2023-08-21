@@ -10,7 +10,7 @@ const MODULE_NAME = "app"
 
 type V1[T any] interface {
 	Config() *T
-	Msg() msg.ProducerV1
+	Msg() msg.MsgV1
 	Storage() storage.V1
 	Cache() cache.V1
 	ID() string

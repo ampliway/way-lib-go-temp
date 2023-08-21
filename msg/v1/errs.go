@@ -7,7 +7,7 @@ import (
 var (
 	errConfigNull         = errors.New("config cannot be null")
 	errConfigServersEmpty = errors.New("servers cannot be empty")
-	errKafkaConnect       = errors.New("kafka cannot connect")
+	errNatsConnect        = errors.New("nats cannot connect")
 	errProducerStart      = errors.New("start producer failed")
 	errAdminClientStart   = errors.New("start admin client failed")
 	errUnmarshal          = errors.New("unmarshal failed")
