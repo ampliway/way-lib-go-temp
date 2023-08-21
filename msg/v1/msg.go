@@ -140,3 +140,9 @@ func (p *Producer) CreateTopicIfNotExist(topicName string) error {
 
 	return nil
 }
+
+func (p *Producer) CreateTopicIfNotExistObj(m interface{}) error {
+	topicName := topicName(m)
+
+	return p.CreateTopicIfNotExist(topicName)
+}
