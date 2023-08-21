@@ -91,6 +91,14 @@ func (p *Producer) Subscribe(m interface{}, queueGroup string, exec func(data []
 }
 
 func (p *Producer) SubscribeT(m interface{}, topicName string, queueGroup string, exec func(data []byte) bool) error {
+	p.js.AddConsumer(topicName, &nats.ConsumerConfig{
+		Durable:        topicName + "-" + queueGroup,
+		Name:           topicName + "-" + queueGroup,
+		DeliverGroup:   queueGroup,
+		DeliverSubject: topicName,
+		AckPolicy:      nats.AckExplicitPolicy,
+	})
+
 	subscription, err := p.js.QueueSubscribe(topicName, queueGroup, func(msg *nats.Msg) {
 		var err error
 		if exec(msg.Data) {
@@ -131,6 +139,7 @@ func (p *Producer) CreateTopicIfNotExist(topicName string) error {
 		Subjects:  []string{topicName + ".>"},
 		MaxAge:    time.Hour * 24 * 365,
 		Retention: nats.InterestPolicy,
+		Replicas:  3,
 	})
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg.MODULE_NAME, err)
