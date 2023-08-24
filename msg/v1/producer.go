@@ -148,8 +148,11 @@ func (p *Producer) CreateTopicIfNotExist(topicName string, numPartitions int32, 
 }
 
 func defaultConfig(cfg *Config) *sarama.Config {
+	clientID, _ := os.Hostname()
+
 	config := sarama.NewConfig()
 	config.Version = sarama.V3_3_2_0
+	config.ClientID = clientID
 	config.Consumer.Group.Rebalance.GroupStrategies = []sarama.BalanceStrategy{sarama.NewBalanceStrategyRoundRobin()}
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Partitioner = sarama.NewRoundRobinPartitioner

@@ -3,7 +3,7 @@ module github.com/ampliway/way-lib-go
 go 1.20
 
 require (
-	github.com/IBM/sarama v1.41.0
+	github.com/IBM/sarama v1.40.1
 	github.com/iancoleman/strcase v0.2.0
 	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/minio/minio-go/v7 v7.0.60
