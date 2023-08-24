@@ -7,8 +7,6 @@ const (
 )
 
 type Message[T any] struct {
-	MessageID string
-	TraceID   string
 	Timestamp int64
 	Body      T
 }

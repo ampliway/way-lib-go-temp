@@ -139,8 +139,6 @@ func (consumer *Consumer[T]) ConsumeClaim(session sarama.ConsumerGroupSession, c
 			}
 
 			result := consumer.execution(&msg.Message[T]{
-				MessageID: "",
-				TraceID:   "",
 				Timestamp: message.Timestamp.Unix(),
 				Body:      finalValue,
 			})
