@@ -140,6 +140,7 @@ func (consumer *Consumer[T]) ConsumeClaim(session sarama.ConsumerGroupSession, c
 
 			result := consumer.execution(&msg.Message[T]{
 				Timestamp: message.Timestamp.Unix(),
+				Key:       string(message.Key),
 				Body:      finalValue,
 			})
 

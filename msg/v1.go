@@ -8,6 +8,7 @@ const (
 
 type Message[T any] struct {
 	Timestamp int64
+	Key       string
 	Body      T
 }
 
