@@ -1,5 +1,11 @@
 package v1
 
 type Config struct {
-	NatsServers string
+	KafkaServers   string
+	KafkaUsername  string
+	KafkaPassword  string
+	KafkaAlgorithm string
+	KafkaCAFile    string
+	KafkaCertFile  string
+	KafkaKeyFile   string
 }
